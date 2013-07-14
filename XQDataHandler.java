@@ -257,7 +257,7 @@ class XQDataHandler extends DefaultHandler
 				}
 			}
 		}
-		if(Matchbuff.equals(qName) && XQData.getInstance().PRules.get(i).QName.equals(qName))
+		if(XQData.getInstance().PRules.get(i).QName.equals(qName))
 		{
 			i--;
 		}
