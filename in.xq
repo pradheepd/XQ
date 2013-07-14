@@ -1,24 +1,6 @@
-<data>
+<data><node>
 {
-let $z := 5
-
-declare function add($a , $b, $c)
-{
-	for $x in doc("d")
-	{
-		if($z = 5) then
-		$z := $z +(($z*4)div 2)
-		else
-		$z := $z - 1
-	}
-
-	$z := $z + 5 + $a + $b + $c
-	
-	return 50
+let $z := doc("sample.xml")
+let $x := $z/bookstore/book[@category = "COOKING"]
 }
-
-let $y := add($z, $z , $z)
-
-return $z
-}
-</data>
+</node></data>

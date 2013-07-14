@@ -561,14 +561,12 @@ arith returns [ List<String> retVal ]
 			retval = (var1 != var2)?1:0;
 			break;
 			case LT:
-			case HTMS:
 			retval = (var1 < var2)?1:0;
 			break;
 			case LE:			
 			retval = (var1 <= var2)?1:0;
 			break;
 			case GT:
-			case HTME:
 			retval = (var1 > var2)?1:0;
 			break;
 			case GE:
@@ -764,16 +762,55 @@ arith returns [ List<String> retVal ]
 	}
 	;
 	
+varpcond returns [String retVal]
+	: SBO (ID | (ATT ID)) (GT | GE | LT | LE | EQ | NE) (INT | LIT) SBC
+	{
+		if($retVal == null)
+			$retVal = new String();
+			
+		$retVal = $varpcond.text;
+	}
+	;
+	
+varpexpr returns [String retVal]
+	: (PATH | DPATH) (ID (ATT ID)? varpcond?)
+	{
+		if($retVal == null)
+			$retVal = new String();
+			
+		if($varpcond.ctx != null)
+			$retVal = $varpcond.retVal;
+	}
+	;
+	
 varp returns [ List<String> retVal ]
-	:	var ((PATH | DPATH) (ID | (ATT ID)))*?
+	:	var (a+=varpexpr)*?
 	{		
-		//connect to database
+		/*connect to database
 		List<String> results = new ArrayList<String>();
 		results.add("hello");
-		//Add the results here
+		Add the results here*/
+		
+		List<XQVarDesc> ListIn = new ArrayList<XQVarDesc>();
+		
+		ListIn.add(new XQVarDesc("/root",""));
+		
+		for(VarpexprContext e: $a)
+		{
+			String x = e.getText();
+			
+			String[] s = x.split("\\[");
+			
+			XQVarDesc in = new XQVarDesc(s[0],e.retVal);
+			
+			System.out.println("Added path item: "+in.Path+","+in.Cond);
+			
+			ListIn.add(in);
+		}
+		
 		if($retVal == null)
 			$retVal = new ArrayList<String>();
-		$retVal.addAll(results);
+		$retVal.addAll(XQData.getInstance().GetVarPath($var.retVal,ListIn));
 	}
 	;
 
@@ -793,17 +830,11 @@ var returns [ List<String> retVal ]
 
 docp returns [ List<String> retVal ]
 	:	DOC ((PATH | DPATH) (ID | (ATT ID)))*?
-	{
-		int i;
-		//connect to database
-		List<String> results = new ArrayList<String>();
-		
-		for(i=0;i<20;i++)
-		results.add(Integer.toString(i));
-		//Add the results here
+	{	
 		if($retVal == null)
 			$retVal = new ArrayList<String>();
-		$retVal.addAll(results);
+			
+		$retVal.addAll(XQData.getInstance().GetXPath($docp.text));
 	}
 	;
 

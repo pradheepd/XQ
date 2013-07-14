@@ -27,8 +27,6 @@ public class XQMiddleWare
 	String Buffer= new String();
 	
 	String Xpath = new String();
-
-	boolean firstnode = true;
 	
 	public class Attribs
 	{
@@ -79,6 +77,8 @@ public class XQMiddleWare
 				
 				if(rstlen == true)
 					return;
+					
+				Stack.add(new ParentStack(0,0,0,"", new ArrayList<Attribs>()));
 
 			}
 			catch(SQLException ex)
@@ -96,55 +96,43 @@ public class XQMiddleWare
 					
 					int pin,pid,idx;
 					
-					if(Stack.isEmpty())
-					{
-						pid = 0;
-						pin = 0;
-					}
-					else
-					{
-						ParentStack e = Stack.get(Stack.size()-1);
-												
-						if(e.wait == true)
-						{
-							Xpath = "doc(\""+fname+"\")";
 					
-							for(ParentStack f :Stack)
-							{
-								Xpath = Xpath+"/"+f.Name;
-							}
+					ParentStack e = Stack.get(Stack.size()-1);
+												
+					if(e.wait == true)
+					{
 							
-							try
-							{
-								System.out.println("call xquery.insertnode("+e.PID+","+e.PIN+",'"+e.Name+"','"+Xpath+"','"+Buffer+"');");
-								statement.execute("call xquery.insertnode("+e.PID+","+e.PIN+",'"+e.Name+"','"+Xpath+"','"+Buffer+"');");
-								resultSet = statement.getResultSet();
-								resultSet.next();
-								e.ID = resultSet.getInt("inid");
-								
-								for(Attribs x :e.Atts)
-								{
-									statement.executeUpdate("insert into attable values("+e.ID+",'"+Xpath+"','"+x.Name+"','"+x.Value+"')");
-								}
-								
-								if(firstnode == true)
-								{
-									Xpath = "doc(\""+fname+"\")";
-									statement.execute("insert into valtable values('"+Xpath+"',"+e.ID+",'"+Buffer+"');");
-									firstnode = false;
-								}
-							}
-							catch(SQLException ex)
-							{
-								ex.printStackTrace();
-							}
-							e.wait = false;
+						Xpath = "doc(\""+fname+"\")";
+					
+						for(ParentStack f :Stack)
+						{
+							if(!f.Name.isEmpty())
+								Xpath = Xpath+"/"+f.Name;
 						}
-						
-						pid = e.ID;
-						pin = e.COUNT;
-						e.COUNT++;
+							
+						try
+						{
+							System.out.println("call xquery.insertnode("+e.PID+","+e.PIN+",'"+e.Name+"','"+Xpath+"','"+Buffer+"');");
+							statement.execute("call xquery.insertnode("+e.PID+","+e.PIN+",'"+e.Name+"','"+Xpath+"','"+Buffer+"');");
+							resultSet = statement.getResultSet();
+							resultSet.next();
+							e.ID = resultSet.getInt("inid");
+								
+							for(Attribs x :e.Atts)
+							{
+								statement.executeUpdate("insert into attable values("+e.ID+",'"+Xpath+"','"+x.Name+"','"+x.Value+"')");
+							}
+						}
+						catch(SQLException ex)
+						{
+							ex.printStackTrace();
+						}
+						e.wait = false;
 					}
+						
+					pid = e.ID;
+					pin = e.COUNT;
+					e.COUNT++;
 					
 					int atlen = attributes.getLength();
 					
@@ -185,7 +173,8 @@ public class XQMiddleWare
 					
 							for(ParentStack f :Stack)
 							{
-								Xpath = Xpath+"/"+f.Name;
+								if(!f.Name.isEmpty())
+									Xpath = Xpath+"/"+f.Name;
 							}
 							
 							try
@@ -196,11 +185,9 @@ public class XQMiddleWare
 								resultSet.next();
 								e.ID = resultSet.getInt("inid");
 								
-								if(firstnode == true)
+								for(Attribs x :e.Atts)
 								{
-									Xpath = "doc(\""+fname+"\")";
-									statement.execute("insert into valtable values('"+Xpath+"',"+e.ID+",'"+Buffer+"');");
-									firstnode = false;
+									statement.executeUpdate("insert into attable values("+e.ID+",'"+Xpath+"','"+x.Name+"','"+x.Value+"')");
 								}
 							}
 							catch(SQLException ex)

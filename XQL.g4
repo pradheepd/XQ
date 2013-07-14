@@ -52,6 +52,8 @@ QM	:	'?';
 PL	:	'+';
 MN	:	'-';
 ML	:	'*';
+SBO	:	'[';
+SBC	:	']';
 DIV	:	'div';
 OR	:	'or';
 MOD	:	'mod';
