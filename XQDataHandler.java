@@ -32,7 +32,7 @@ class XQDataHandler extends DefaultHandler
 			
 			if(XQData.getInstance().PRules.get(i).r == XQData.XPR.EQ)
 			{
-				if(!XQData.getInstance().PRules.get(i).QName.equals(qName))
+				if(!XQData.getInstance().PRules.get(i).QName.equals(qName) && stage1==false)
 				{
 					cont = false;
 				}
@@ -257,9 +257,12 @@ class XQDataHandler extends DefaultHandler
 				}
 			}
 		}
-		if(XQData.getInstance().PRules.get(i).QName.equals(qName))
+		if((i+1)<len)
 		{
-			i--;
+			if(XQData.getInstance().PRules.get(i).QName.equals(qName))
+			{
+				i--;
+			}
 		}
 	}
 				
@@ -391,10 +394,11 @@ class XQDataHandler extends DefaultHandler
 				
 				if(condeval == MCOND.FALSE)				
 				{					
-					stage1 = false;
 					stage2 = false;
 					MatchedString = "";
 					matchedStr = "";
+					matched =false;
+					condeval = MCOND.CONT;
 				}
 			}
 		}

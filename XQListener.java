@@ -9,14 +9,17 @@ import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.Token;
 
 public interface XQListener extends ParseTreeListener {
-	void enterArith(XQParser.ArithContext ctx);
-	void exitArith(XQParser.ArithContext ctx);
-
 	void enterVarpexpr(XQParser.VarpexprContext ctx);
 	void exitVarpexpr(XQParser.VarpexprContext ctx);
 
+	void enterArith(XQParser.ArithContext ctx);
+	void exitArith(XQParser.ArithContext ctx);
+
 	void enterForstmt(XQParser.ForstmtContext ctx);
 	void exitForstmt(XQParser.ForstmtContext ctx);
+
+	void enterVarpscond(XQParser.VarpscondContext ctx);
+	void exitVarpscond(XQParser.VarpscondContext ctx);
 
 	void enterHtmt(XQParser.HtmtContext ctx);
 	void exitHtmt(XQParser.HtmtContext ctx);
@@ -48,11 +51,14 @@ public interface XQListener extends ParseTreeListener {
 	void enterProg(XQParser.ProgContext ctx);
 	void exitProg(XQParser.ProgContext ctx);
 
-	void enterRtnstmt(XQParser.RtnstmtContext ctx);
-	void exitRtnstmt(XQParser.RtnstmtContext ctx);
-
 	void enterVarp(XQParser.VarpContext ctx);
 	void exitVarp(XQParser.VarpContext ctx);
+
+	void enterVarpexpra(XQParser.VarpexpraContext ctx);
+	void exitVarpexpra(XQParser.VarpexpraContext ctx);
+
+	void enterRtnstmt(XQParser.RtnstmtContext ctx);
+	void exitRtnstmt(XQParser.RtnstmtContext ctx);
 
 	void enterDtype(XQParser.DtypeContext ctx);
 	void exitDtype(XQParser.DtypeContext ctx);
@@ -65,4 +71,7 @@ public interface XQListener extends ParseTreeListener {
 
 	void enterExprp(XQParser.ExprpContext ctx);
 	void exitExprp(XQParser.ExprpContext ctx);
+
+	void enterAndor(XQParser.AndorContext ctx);
+	void exitAndor(XQParser.AndorContext ctx);
 }

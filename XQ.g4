@@ -762,55 +762,99 @@ arith returns [ List<String> retVal ]
 	}
 	;
 	
-varpcond returns [String retVal]
-	: SBO (ID | (ATT ID)) (GT | GE | LT | LE | EQ | NE) (INT | LIT) SBC
+varpscond returns [String retVal]
+	: (ID | (ATT ID)) (GT | GE | LT | LE | EQ | NE) (INT | LIT)
 	{
-		if($retVal == null)
-			$retVal = new String();
-			
-		$retVal = $varpcond.text;
+		$retVal = $varpscond.text;
 	}
 	;
 	
-varpexpr returns [String retVal]
-	: (PATH | DPATH) (ID (ATT ID)? varpcond?)
+andor: AND | OR;
+	
+varpcond returns [List<String> retVal]
+	: SBO a=varpscond (b+=andor c+=varpscond)* SBC
+	{
+		
+		if($retVal == null)
+			$retVal = new ArrayList<String>();
+			
+		$retVal.add($a.retVal);
+		
+		int i=0;
+		
+		for(VarpscondContext e :$c)
+		{			
+			$retVal.add($b.get(i).getText()+e.retVal);
+			i++;
+		}
+	}
+	;
+	
+varpexpra returns [String retVal]
+	: (PATH | DPATH) (ID | (ATT ID))
+	{
+		$retVal = $varpexpra.text;
+	}
+	;
+	
+varpexpr returns [XQPathStr retVal]
+	: varpexpra varpcond?
 	{
 		if($retVal == null)
-			$retVal = new String();
+			$retVal = new XQPathStr();
 			
+		$retVal.path.add(new XQVarDesc("/root",""));
+		
 		if($varpcond.ctx != null)
-			$retVal = $varpcond.retVal;
+		{
+			boolean cont = false;
+			
+			$retVal.path.add(new XQVarDesc($varpexpra.retVal,$varpcond.retVal.get(0)));
+			
+			for(String e :$varpcond.retVal)
+			{
+				if(cont == true)
+				{
+					String [] arr = e.split("and");
+					
+					if(arr.length >1)
+						$retVal.andpath.add(new XQVarDesc("/root",arr[1]));
+						
+					arr = e.split("or");
+					
+					if(arr.length >1)
+						$retVal.orpath.add(new XQVarDesc($varpexpra.retVal,arr[1]));
+				}
+				else
+				    cont = true;
+			}
+		}
+		else
+			$retVal.path.add(new XQVarDesc($varpexpra.retVal,""));
 	}
 	;
 	
 varp returns [ List<String> retVal ]
 	:	var (a+=varpexpr)*?
-	{		
-		/*connect to database
-		List<String> results = new ArrayList<String>();
-		results.add("hello");
-		Add the results here*/
-		
-		List<XQVarDesc> ListIn = new ArrayList<XQVarDesc>();
-		
-		ListIn.add(new XQVarDesc("/root",""));
-		
-		for(VarpexprContext e: $a)
-		{
-			String x = e.getText();
-			
-			String[] s = x.split("\\[");
-			
-			XQVarDesc in = new XQVarDesc(s[0],e.retVal);
-			
-			System.out.println("Added path item: "+in.Path+","+in.Cond);
-			
-			ListIn.add(in);
-		}
+	{
 		
 		if($retVal == null)
 			$retVal = new ArrayList<String>();
-		$retVal.addAll(XQData.getInstance().GetVarPath($var.retVal,ListIn));
+			
+		List<String>tempArry = new ArrayList<String>();
+		
+		tempArry.addAll(XQData.getInstance().GetVarPath($var.retVal,$a.get(0).retVal));
+		
+		$a.remove(0);
+		
+		for(VarpexprContext e: $a)
+		{
+			List<String> arr = XQData.getInstance().GetVarPath(tempArry,e.retVal);
+			tempArry.clear();
+			tempArry.addAll(arr);
+		}
+		
+		$retVal.addAll(tempArry);
 	}
 	;
 

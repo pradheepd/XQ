@@ -85,13 +85,11 @@ class XQData
 		return Instance;
 	}
 	
-	public List<String> GetVarPath(List<String> in, List<XQVarDesc> Varpath)
-	{
-		List<String> ret = new ArrayList<String>();
-		
+	private void AddPathRules(List<XQVarDesc> path)
+	{		
 		PRules.clear();
 		
-		for(XQVarDesc e :Varpath)
+		for(XQVarDesc e :path)
 		{
 			PathRule rule = new PathRule();
 			
@@ -134,8 +132,6 @@ class XQData
 			}
 			else
 			{
-				e.Cond = e.Cond.replace("[","");
-				e.Cond = e.Cond.replace("]","");
 				
 				String [] condsp = e.Cond.split("@");
 				
@@ -208,11 +204,14 @@ class XQData
 					rule.cnst = condsp[1];
 				}
 			}
-			
+			System.out.println("rule:"+rule.QName+":"+rule.atname+":"+rule.c+":"+rule.cnst);
 			PRules.add(rule);
 		}
-		
-		System.out.println("Varpath:"+Varpath+":"+PRules.size()+":"+PRules.get(1).QName+":"+PRules.get(1).vcname);
+	}
+	
+	private List<String> ExecQuery(List<String> in)
+	{
+		List<String> ret = new ArrayList<String>();
 		
 		for(String item: in)
 		{
@@ -221,6 +220,7 @@ class XQData
 			String xml = "<root>"+"<"+param[1]+"</root>";
 			try
 			{
+				System.out.println("xml:"+xml);
 				parseXML(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));
 			}
 			catch(UnsupportedEncodingException e)
@@ -229,6 +229,45 @@ class XQData
 			}
 			ret.addAll(parseXMLRets);
 		}
+		return ret;
+	}
+	
+	public List<String> GetVarPath(List<String> in, XQPathStr Varpath)
+	{
+		List<String> ret = new ArrayList<String>();
+		
+		AddPathRules(Varpath.path);
+		
+		//System.out.println("Varpath:"+Varpath+":"+PRules.size()+":"+PRules.get(1).QName+":"+PRules.get(1).vcname);
+		
+		ret.addAll(ExecQuery(in));
+		
+		for(XQVarDesc p :Varpath.andpath)
+		{
+			List<XQVarDesc> vp = new ArrayList<XQVarDesc>();
+			List<String> inparam = new ArrayList<String>();
+			
+			//vp.add(new XQVarDesc("/root",""));
+			vp.add(p);
+			
+			AddPathRules(vp);
+			
+			inparam.addAll(ret);
+			ret.clear();
+			ret.addAll(ExecQuery(inparam));
+		}
+		
+		for(XQVarDesc p :Varpath.orpath)
+		{
+			List<XQVarDesc> vp = new ArrayList<XQVarDesc>();			
+			
+			vp.add(new XQVarDesc("/root",""));
+			vp.add(p);
+			
+			AddPathRules(vp);
+			
+			ret.addAll(ExecQuery(in));
+		}	
 		
 		return ret;
 	}

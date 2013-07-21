@@ -5,7 +5,7 @@ public class XQt
 {
 	public static void main(String[] args) throws Exception 
 	{
-		if(!args[1].isEmpty())
+		if(args.length > 1)
 		{
 			XQMiddleWare upfile = new XQMiddleWare(args[1]);
 		}

@@ -1,6 +1,7 @@
 
 public class XQVarDesc
 {
+
 	String Path;
 	String Cond;
 	

@@ -2,6 +2,8 @@ use xquery;
 
 -- call getchilds(2,@rtn);select @rtn;
 
+create database xquery;
+
 create table debug (val nvarchar(300));
 
 delete from debug;
