@@ -323,17 +323,236 @@ class XQData
 			if(tries < MAXTRIES)
 			{
 				if(connectdb())
-					GetXPath(path);
+					Rtn = GetXPath(path);
 				else
 					tries = 0;
 			}
 			else
 			{
 				tries = 0;
+				return null;
 			}
 		}
 		
 		return Rtn;
+	}
+	
+	public void XPcond(String xp, String cond)
+	{	
+		try
+		{
+			boolean and =false;
+			boolean or =false;
+			boolean at =false;
+			boolean strcmp = false;
+			double var = 0;
+			String pth = "";
+			String Cnst = "";
+			XPC cdn = XPC.NONE;
+			String cdtn = "";
+			String method = "";
+			
+			String [] sp = cond.split("and");
+			
+			if(sp.length > 1)
+			{	
+				and = true;
+				cdtn += sp[1];
+			}
+			else
+			{
+				sp = cond.split("or");
+				
+				if(sp.length > 1)
+				{
+					or = true;
+					cdtn += sp[1];
+				}
+				else
+				{
+					or = true;
+					cdtn += cond;
+				}
+			}
+			
+			sp = cdtn.split("@");
+			
+			if(sp.length > 1)
+				at = true;
+			
+			sp = cdtn.split("=");
+			
+			if(sp.length > 1)
+			{
+				try
+				{
+					var = Double.parseDouble(sp[1]);
+				}
+				catch(Exception e)
+				{
+					strcmp = true;
+					Cnst = sp[1];					
+				}
+				pth = sp[0];
+				cdn = XPC.EQ;
+			}
+			
+			sp = cdtn.split("!=");
+			
+			if(sp.length > 1)
+			{
+				try
+				{
+					var = Double.parseDouble(sp[1]);
+				}
+				catch(Exception e)
+				{
+					strcmp = true;
+					Cnst = sp[1];					
+				}
+				pth = sp[0];
+				cdn = XPC.NEQ;
+			}
+			
+			sp = cdtn.split("<");
+			
+			if(sp.length > 1)
+			{
+				try
+				{
+					var = Double.parseDouble(sp[1]);
+				}
+				catch(Exception e)
+				{
+					strcmp = true;
+					Cnst = sp[1];					
+				}
+				pth = sp[0];
+				cdn = XPC.LT;
+			}
+			
+			sp = cdtn.split(">");
+			
+			if(sp.length > 1)
+			{
+				try
+				{
+					var = Double.parseDouble(sp[1]);
+				}
+				catch(Exception e)
+				{
+					strcmp = true;
+					Cnst = sp[1];					
+				}
+				pth = sp[0];
+				cdn = XPC.GT;
+			}
+			
+			sp = cdtn.split("<=");
+			
+			if(sp.length > 1)
+			{
+				try
+				{
+					var = Double.parseDouble(sp[1]);
+				}
+				catch(Exception e)
+				{
+					strcmp = true;
+					Cnst = sp[1];					
+				}
+				pth = sp[0];
+				cdn = XPC.LTE;
+			}
+			
+			sp = cdtn.split(">=");
+			
+			if(sp.length > 1)
+			{
+				try
+				{
+					var = Double.parseDouble(sp[1]);
+				}
+				catch(Exception e)
+				{
+					strcmp = true;
+					Cnst = sp[1];					
+				}
+				pth = sp[0];
+				cdn = XPC.GTE;
+			}
+			
+			switch(cdn)
+			{
+				case EQ:
+					if(strcmp == false)
+						method = "XPcdtnEQ";
+					else
+						method = "XPcdtnEQSTR";
+					break;
+				case LT:
+					method = "XPcdtnLT";
+					break;
+				case NEQ:
+					if(strcmp == false)
+						method = "XPcdtnNEQ";
+					else
+						method = "XPcdtnNEQSTR";
+					break;
+				case GT:
+					method = "XPcdtnGT";
+					break;
+				case GTE:
+					method = "XPcdtnGTE";
+					break;
+				case LTE:
+					method = "XPcdtnLTE";
+					break;
+			}
+			
+			if(and == true)
+				method += "_and";
+			
+			if(strcmp == false)
+				statement.execute("call "+method+"('"+xp+"/"+pth+"',"+var+")");
+			else
+				statement.execute("call "+method+"('"+xp+"/"+pth+"',"+Cnst+")");
+				
+			System.out.println("method :"+method+" called ..."+xp+"/"+pth+":"+var+":"+Cnst);
+		}
+		catch (SQLException e) 
+		{
+			System.out.println("sql exception in executing condition function call:"+e.getMessage());
+		}
+	}
+	
+	public boolean LockTable()
+	{	
+		try
+		{
+			statement.execute("lock tables ordtable read, valtable read, attable read;");
+		}
+		catch (SQLException e) 
+		{
+			System.out.println("Lock Tables expt:"+e.getMessage());
+		}
+		
+		return true;
+	}
+	
+	public boolean UnLockTable()
+	{	
+		try
+		{
+			statement.execute("update ordtable set mtch=0 where mtch=1;");
+			statement.execute("unlock tables;");
+		}
+		catch (SQLException e) 
+		{
+			System.out.println("UnLock Tables expt:"+e.getMessage());
+		}
+		
+		return true;
 	}
 	
 	private boolean connectdb()

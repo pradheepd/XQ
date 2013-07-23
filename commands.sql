@@ -14,11 +14,9 @@ drop table result;
 
 select * from debug;
 
-select * from attable;
-
 delete from attable;
 
-call xpath('doc("sample.xml")');
+call xpath('doc("sample.xml")/bookstore/book');
 
 drop table ordtable;
 
@@ -28,7 +26,7 @@ drop table attable;
 
 create table attable(id int,xp nvarchar(1000),nam nvarchar(300),val nvarchar(300), index(id),index hash(xp));
 
-create table ordtable(idx int AUTO_INCREMENT,pid int,pin int,val nvarchar(1000),primary key(idx));
+create table ordtable(idx int AUTO_INCREMENT,pid int,pin int,val nvarchar(1000),mtch bit default 0,primary key(idx));
 
 create table valtable(xp nvarchar(1000),id int,val nvarchar(1000), key hash(xp));
 
@@ -36,8 +34,11 @@ select * from ordtable;
 
 select * from valtable;
 
-delete from ordtable;
+select * from attable;
 
-delete from valtable;
+call xpcdtnGT_and('doc("sample.xml")/bookstore/book/price',40.00);
 
-select id from valtable where xp='doc("sample.xml")'
+update ordtable set mtch=0;
+
+lock tables ordtable read, valtable read, attable read;
+unlock tables;

@@ -13,7 +13,7 @@ declare done int default 0;
 
 declare childid int default 0;
 
-declare childs cursor for select idx from ordtable where pid= pathid order by pin asc;
+declare childs cursor for select idx from ordtable where pid= pathid and mtch=0 order by pin asc;
 
 DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 

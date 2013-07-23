@@ -33,6 +33,9 @@ public interface XQListener extends ParseTreeListener {
 	void enterVar(XQParser.VarContext ctx);
 	void exitVar(XQParser.VarContext ctx);
 
+	void enterDocexp(XQParser.DocexpContext ctx);
+	void exitDocexp(XQParser.DocexpContext ctx);
+
 	void enterVarpcond(XQParser.VarpcondContext ctx);
 	void exitVarpcond(XQParser.VarpcondContext ctx);
 

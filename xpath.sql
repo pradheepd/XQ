@@ -24,8 +24,10 @@ open childs;
 repeat
 	 fetch childs into pathid;
 	 IF NOT done THEN
-		call getchild(pathid,@rtn);
-		insert into result values(@rtn);
+		if (select mtch from ordtable where idx=pathid) = 0 then
+			call getchild(pathid,@rtn);
+			insert into result values(@rtn);
+		end if;
 	 END IF;
 
 until done end repeat;

@@ -1,10 +1,9 @@
 <data><node>
 {
-let $z := doc("sample.xml")
-let $x := $z/bookstore/book/price
+let $z := doc("sample.xml")/bookstore/book[price > 40]
 let $sum := 0
 
-for $y in $z/bookstore/book/price
+for $y in $z/price
 {
 	$sum := $sum + $y
 }

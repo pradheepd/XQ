@@ -396,13 +396,13 @@ expr: forstmt
 	;
 	
 forstmt
-	: (FOR{isForCtx = true;} a=var (AT b=var)? IN (docp | varp))(c=expr | (OFL (d+=expr)+ CFL))
+	: (FOR{isForCtx = true;} a=var (AT b=var)? IN (e=var | docp | varp))(c=expr | (OFL (d+=expr)+ CFL))
 	{
 	if(XQData.getInstance().isFnCtx == false)
 	{
 		List<String> vara = new ArrayList<String>();		
 		
-		if( ($docp.ctx != null) || ($varp.ctx != null))
+		if( ($docp.ctx != null) || ($varp.ctx != null) || ($e.ctx != null))
 		{
 			int i;
 					
@@ -419,9 +419,13 @@ forstmt
 			{
 				params.addAll($docp.retVal);
 			}
-			else
+			else if($varp.ctx != null)
 			{
 				params.addAll($varp.retVal);
+			}
+			else
+			{
+				params.addAll($e.retVal);
 			}
 			
 			for(i=0;i<params.size();i++)
@@ -871,14 +875,57 @@ var returns [ List<String> retVal ]
 			$retVal.addAll(forvars.get($var.text));
 	}
 	;
-
-docp returns [ List<String> retVal ]
-	:	DOC ((PATH | DPATH) (ID | (ATT ID)))*?
-	{	
+	
+docexp returns [List<String> retVal]
+	: varpexpra varpcond?
+	{
 		if($retVal == null)
 			$retVal = new ArrayList<String>();
+		
+		$retVal.add($varpexpra.retVal);
+		
+		if($varpcond.ctx !=null)
+		{
+			$retVal.addAll($varpcond.retVal);
+		}
+	}
+	;
+
+docp returns [ List<String> retVal ]
+	:	DOC (a+=docexp)*?
+	{	
+		boolean locked = false;
+		
+		if($retVal == null)
+			$retVal = new ArrayList<String>();
+		
+		String xp = $DOC.text;
+		
+		for(DocexpContext e :$a)
+		{
+			xp += e.retVal.get(0);
 			
-		$retVal.addAll(XQData.getInstance().GetXPath($docp.text));
+			if(e.retVal.size() > 1)
+			{
+				int i;
+				
+				if(locked == false)
+					//if(XQData.getInstance().LockTable() == true)
+						locked = true;
+				
+				System.out.println("condition called :"+e.retVal);
+				
+				for(i=1;i<e.retVal.size();i++)
+				{
+					XQData.getInstance().XPcond(xp,e.retVal.get(i));
+				}
+			}
+		}
+			
+		$retVal.addAll(XQData.getInstance().GetXPath(xp));
+		
+		if(locked == true)
+			XQData.getInstance().UnLockTable();
 	}
 	;
 

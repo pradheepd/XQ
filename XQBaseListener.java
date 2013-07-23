@@ -36,6 +36,9 @@ public class XQBaseListener implements XQListener {
 	@Override public void enterVar(XQParser.VarContext ctx) { }
 	@Override public void exitVar(XQParser.VarContext ctx) { }
 
+	@Override public void enterDocexp(XQParser.DocexpContext ctx) { }
+	@Override public void exitDocexp(XQParser.DocexpContext ctx) { }
+
 	@Override public void enterVarpcond(XQParser.VarpcondContext ctx) { }
 	@Override public void exitVarpcond(XQParser.VarpcondContext ctx) { }
 

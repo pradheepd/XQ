@@ -21,7 +21,7 @@ declare done int default 0;
 
 declare childid int default 0;
 
-declare childs cursor for select idx from ordtable where pid= pathid order by pin asc;
+declare childs cursor for select idx from ordtable where pid= pathid and mtch= 0 order by pin asc;
 
 declare ats cursor for select nam,val from attable where id=pathid;
 
@@ -36,6 +36,7 @@ open ats;
 repeat
 	fetch ats into atnam,atval;
 	IF NOT done THEN
+	insert into debug values(pathid);
 	select concat(retVal,' ',atnam,'="',atval,'"') into retVal;
 	end if;
 until done end repeat;
