@@ -788,7 +788,11 @@ varpcond returns [List<String> retVal]
 		
 		for(VarpscondContext e :$c)
 		{			
-			$retVal.add($b.get(i).getText()+e.retVal);
+			if($b.get(i).getText().equals("and"))
+				$retVal.add("+"+e.retVal);
+			else
+				$retVal.add("-"+e.retVal);
+				
 			i++;
 		}
 	}
@@ -819,12 +823,12 @@ varpexpr returns [XQPathStr retVal]
 			{
 				if(cont == true)
 				{
-					String [] arr = e.split("and");
+					String [] arr = e.split("\\+");
 					
 					if(arr.length >1)
 						$retVal.andpath.add(new XQVarDesc("/root",arr[1]));
 						
-					arr = e.split("or");
+					arr = e.split("-");
 					
 					if(arr.length >1)
 						$retVal.orpath.add(new XQVarDesc($varpexpra.retVal,arr[1]));

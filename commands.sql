@@ -36,7 +36,7 @@ select * from valtable;
 
 select * from attable;
 
-call xpcdtnGT_and('doc("sample.xml")/bookstore/book/price',40.00);
+call xpcdtnEQSTRat('doc("sample.xml")/bookstore/book@category','WEB');
 
 update ordtable set mtch=0;
 

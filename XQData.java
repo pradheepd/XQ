@@ -352,7 +352,7 @@ class XQData
 			String cdtn = "";
 			String method = "";
 			
-			String [] sp = cond.split("and");
+			String [] sp = cond.split("\\+");
 			
 			if(sp.length > 1)
 			{	
@@ -361,7 +361,7 @@ class XQData
 			}
 			else
 			{
-				sp = cond.split("or");
+				sp = cond.split("-");
 				
 				if(sp.length > 1)
 				{
@@ -378,8 +378,10 @@ class XQData
 			sp = cdtn.split("@");
 			
 			if(sp.length > 1)
+			{
+				cdtn = cdtn.replace("@", "");
 				at = true;
-			
+			}
 			sp = cdtn.split("=");
 			
 			if(sp.length > 1)
@@ -391,7 +393,8 @@ class XQData
 				catch(Exception e)
 				{
 					strcmp = true;
-					Cnst = sp[1];					
+					Cnst = sp[1];	
+					Cnst = Cnst.replace("\"", "");
 				}
 				pth = sp[0];
 				cdn = XPC.EQ;
@@ -409,6 +412,7 @@ class XQData
 				{
 					strcmp = true;
 					Cnst = sp[1];					
+					Cnst = Cnst.replace("\"", "");
 				}
 				pth = sp[0];
 				cdn = XPC.NEQ;
@@ -426,6 +430,7 @@ class XQData
 				{
 					strcmp = true;
 					Cnst = sp[1];					
+					Cnst = Cnst.replace("\"", "");
 				}
 				pth = sp[0];
 				cdn = XPC.LT;
@@ -443,6 +448,7 @@ class XQData
 				{
 					strcmp = true;
 					Cnst = sp[1];					
+					Cnst = Cnst.replace("\"", "");
 				}
 				pth = sp[0];
 				cdn = XPC.GT;
@@ -460,6 +466,7 @@ class XQData
 				{
 					strcmp = true;
 					Cnst = sp[1];					
+					Cnst = Cnst.replace("\"", "");
 				}
 				pth = sp[0];
 				cdn = XPC.LTE;
@@ -477,6 +484,7 @@ class XQData
 				{
 					strcmp = true;
 					Cnst = sp[1];					
+					Cnst = Cnst.replace("\"", "");
 				}
 				pth = sp[0];
 				cdn = XPC.GTE;
@@ -510,15 +518,29 @@ class XQData
 					break;
 			}
 			
+			if(at == true)
+				method += "at";
+			
 			if(and == true)
 				method += "_and";
 			
-			if(strcmp == false)
-				statement.execute("call "+method+"('"+xp+"/"+pth+"',"+var+")");
-			else
-				statement.execute("call "+method+"('"+xp+"/"+pth+"',"+Cnst+")");
-				
+			
 			System.out.println("method :"+method+" called ..."+xp+"/"+pth+":"+var+":"+Cnst);
+			
+			if(strcmp == false)
+			{
+				if(at == false)
+					statement.execute("call "+method+"('"+xp+"/"+pth+"',"+var+")");
+				else
+					statement.execute("call "+method+"('"+xp+"','"+pth+"',"+var+")");
+			}
+			else
+			{
+				if(at == false)
+					statement.execute("call "+method+"('"+xp+"/"+pth+"','"+Cnst+"')");
+				else
+					statement.execute("call "+method+"('"+xp+"','"+pth+"','"+Cnst+"')");
+			}			
 		}
 		catch (SQLException e) 
 		{

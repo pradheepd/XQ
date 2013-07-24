@@ -2540,7 +2540,11 @@ public class XQParser extends Parser {
 					
 					for(VarpscondContext e :((VarpcondContext)_localctx).c)
 					{			
-						_localctx.retVal.add(((VarpcondContext)_localctx).b.get(i).getText()+e.retVal);
+						if(((VarpcondContext)_localctx).b.get(i).getText().equals("and"))
+							_localctx.retVal.add("+"+e.retVal);
+						else
+							_localctx.retVal.add("-"+e.retVal);
+							
 						i++;
 					}
 				
@@ -2679,12 +2683,12 @@ public class XQParser extends Parser {
 						{
 							if(cont == true)
 							{
-								String [] arr = e.split("and");
+								String [] arr = e.split("\\+");
 								
 								if(arr.length >1)
 									_localctx.retVal.andpath.add(new XQVarDesc("/root",arr[1]));
 									
-								arr = e.split("or");
+								arr = e.split("-");
 								
 								if(arr.length >1)
 									_localctx.retVal.orpath.add(new XQVarDesc(((VarpexprContext)_localctx).varpexpra.retVal,arr[1]));
