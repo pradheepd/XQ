@@ -87,6 +87,13 @@ class XQData
 		return Instance;
 	}
 	
+	public void ResetVars()
+	{
+		vars.clear();
+		ftns.clear();
+		parseXMLRets.clear();
+	}
+	
 	private void AddPathRules(List<XQVarDesc> path)
 	{		
 		PRules.clear();

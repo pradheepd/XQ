@@ -16,6 +16,7 @@ options { tokenVocab=XQL; }
   Map<String,List<String>> forvars = new HashMap<String,List<String>>();
   boolean isVCtx = false;
   List<String> retVal = new ArrayList<String>();
+  
 }
 
 prog
@@ -221,7 +222,7 @@ ifexpr returns [boolean retVal] : (i9=var | i1=docp | i2=varp | i3=LIT | i4=INT)
 	}
 	;
 	
-rtnstmt: (WHERE (var | docp | varp ) (GT | GE | LT | LE | EQ | NE) (var | docp | varp | LIT | INT ) (AND (var | docp | varp) (GT | GE | LT | LE | EQ | NE) (var | docp | varp | LIT | INT))*)? (ord (docp | varp) (CMA (docp | varp))* )? RETURN z=arith
+rtnstmt: RETURN z=arith
 	{
 		if($z.ctx != null )
 		{
@@ -396,14 +397,117 @@ expr: forstmt
 	| rtnstmt
 	;
 	
+wherecond returns[XQwhrcdtn retVal]: 
+(a=var | b=docp | c=varp ) d=(GT | GE | LT | LE | EQ | NE) (e=var | f=docp | g=varp | LIT | INT )
+{
+	String value = new String();
+	List<String> lit = new ArrayList<String>();	
+	
+	String id;
+	String val;
+	XQwhrcdtn.whrenum enm = XQwhrcdtn.whrenum.EQ;
+	
+	if($a.ctx != null)
+	{
+		value = $a.text;	
+	}
+	
+	if($b.ctx != null)
+	{
+		value = $b.text;	
+	}
+	
+	if($c.ctx != null)
+	{
+		value = $c.text;	
+	}
+	
+	if($e.ctx != null)
+	{
+		lit.addAll($e.retVal);	
+	}
+	
+	if($f.ctx != null)
+	{
+		lit.addAll($f.retVal);	
+	}
+	
+	if($g.ctx != null)
+	{
+		lit.addAll($g.retVal);	
+	}
+	
+	if($LIT != null)
+	{
+		lit.add($LIT.text);
+	}
+	
+	if($INT != null)
+	{
+		lit.add($INT.text);
+	}
+	
+	if(lit.size() == 1)
+	{
+		id = value;
+		val = lit.get(0);
+		
+		switch($d.getType())
+		{
+			case GT:
+			enm = XQwhrcdtn.whrenum.GT;
+			break;
+			case GE:
+			enm = XQwhrcdtn.whrenum.GTE;
+			break;
+			case LT:
+			enm = XQwhrcdtn.whrenum.LT;
+			break;
+			case LE:
+			enm = XQwhrcdtn.whrenum.LTE;
+			break;
+			case EQ:
+			enm = XQwhrcdtn.whrenum.EQ;
+			break;
+			case NE:
+			enm = XQwhrcdtn.whrenum.NEQ;
+			break;
+		}
+		
+		if($retVal == null)
+			$retVal = new XQwhrcdtn(id,enm,val);
+	}
+}
+;
+	
+wherestmt returns[List<XQwhrcdtn> retVal]: WHERE  a=wherecond (AND b+=wherecond)*?
+{
+	if($retVal == null)
+	{
+		$retVal = new ArrayList<XQwhrcdtn>();
+	}
+	
+	$retVal.add($a.retVal);
+		
+	if($b.size() > 0)
+	{
+		for(WherecondContext e : $b)
+			$retVal.add(e.retVal);
+	}
+	
+}
+;
+
+whereord: ord (docp | varp) (CMA (docp | varp))*; 
+	
 forstmt
-	: (FOR{isForCtx = true;} a=var (AT b=var)? IN (e=var | docp | varp))(c=expr | (OFL (d+=expr)+ CFL))
+	: (FOR{isForCtx = true;} a=var (AT b=var)? IN (e=var | docp | varp)) wherestmt? (c=expr | (OFL (d+=expr)+ CFL))
 	{
 	if(XQData.getInstance().isFnCtx == false)
 	{
 		List<String> vara = new ArrayList<String>();		
 		
-		if( ($docp.ctx != null) || ($varp.ctx != null) || ($e.ctx != null))
+		if(($docp.ctx != null) || ($varp.ctx != null) || ($e.ctx != null))
 		{
 			int i;
 					
@@ -434,78 +538,204 @@ forstmt
 				String in = new String();
 				int j;
 				int m = 1;
+				boolean cnt = true;
 				
-				for(j=0;j<m;j++)
+				if($wherestmt.ctx != null)
 				{
-								
-					if(isMultiStmt == false)
+					cnt = false;
+				
+					List<String> tempArry = new ArrayList<String>();
+					tempArry.add(params.get(i));
+					
+					for(XQwhrcdtn e : $wherestmt.retVal)
 					{
+						XQPathStr pathstr = new XQPathStr();
+											
+						e.id = e.id.replace($a.text+"/","");
+						
+						String [] s = e.id.split("/");
+						
 						int x;
 						
-						for(x = $c.ctx.start.getTokenIndex();x <= $c.ctx.stop.getTokenIndex(); x++)
-							in += " "+_input.get(x).getText();
+						pathstr.path.add(new XQVarDesc("/root",""));
 						
-						/*_input.seek($c.ctx.stop.getTokenIndex());
-						mark = _input.mark();
-						_input.seek($c.ctx.start.getTokenIndex());*/
+						for(x=0;x<s.length;x++)
+							pathstr.path.add(new XQVarDesc("/"+s[x],""));
+						
+						List<String> rstset = XQData.getInstance().GetVarPath(tempArry,pathstr);
+						
+						double var1 = 0;
+						double var2 = 0; 
+						
+						if(rstset.size() == 1)
+						{
+							switch(e.enm)
+							{
+								case EQ:
+								if(rstset.get(0).equals(e.val))
+								{
+									cnt = true;
+								}
+								else
+								{
+									try
+									{
+										var1 = Double.parseDouble(rstset.get(0));
+										var2 = Double.parseDouble(e.val);
+									}
+									catch(Exception ex)
+									{
+									}
+									if(var1 == var2)
+										cnt = true;
+								}
+								break;
+								case NEQ:
+								if(!rstset.get(0).equals(e.val))
+								{
+									cnt = true;
+								}
+								else
+								{
+									try
+									{
+										var1 = Double.parseDouble(rstset.get(0));
+										var2 = Double.parseDouble(e.val);
+									}
+									catch(Exception ex)
+									{
+									}
+									if(var1 != var2)
+										cnt = true;
+								}
+								break;
+								case LT:								
+								try
+								{
+									var1 = Double.parseDouble(rstset.get(0));
+									var2 = Double.parseDouble(e.val);
+								}
+								catch(Exception ex)
+								{
+								}
+								if(var1 < var2)
+									cnt = true;
+								break;
+								case GT:
+								try
+								{
+									var1 = Double.parseDouble(rstset.get(0));
+									var2 = Double.parseDouble(e.val);
+								}
+								catch(Exception ex)
+								{
+								}
+								if(var1 > var2)
+									cnt = true;
+								break;
+								case LTE:
+								try
+								{
+									var1 = Double.parseDouble(rstset.get(0));
+									var2 = Double.parseDouble(e.val);
+								}
+								catch(Exception ex)
+								{
+								}
+								if(var1 <= var2)
+									cnt = true;
+								break;
+								case GTE:
+								try
+								{
+									var1 = Double.parseDouble(rstset.get(0));
+									var2 = Double.parseDouble(e.val);
+								}
+								catch(Exception ex)
+								{
+								}
+								if(var1 >= var2)
+									cnt = true;
+								break;
+							}
+						}		
 					}
-					else
+				}
+				
+				if(cnt == true)
+				{
+					for(j=0;j<m;j++)
 					{
-						m = $d.size();
-						int x;
-						
-						for(x = $d.get(j).start.getTokenIndex();x <= $d.get(j).stop.getTokenIndex(); x++)
-							in += " "+_input.get(x).getText();
+									
+						if(isMultiStmt == false)
+						{
+							int x;
 							
-						/*_input.seek($d.get($d.size()-1).stop.getTokenIndex());
-						mark = _input.mark();
-						_input.seek($d.get(0).start.getTokenIndex());*/
+							for(x = $c.ctx.start.getTokenIndex();x <= $c.ctx.stop.getTokenIndex(); x++)
+								in += " "+_input.get(x).getText();
+							
+							/*_input.seek($c.ctx.stop.getTokenIndex());
+							mark = _input.mark();
+							_input.seek($c.ctx.start.getTokenIndex());*/
+						}
+						else
+						{
+							m = $d.size();
+							int x;
+							
+							for(x = $d.get(j).start.getTokenIndex();x <= $d.get(j).stop.getTokenIndex(); x++)
+								in += " "+_input.get(x).getText();
+								
+							/*_input.seek($d.get($d.size()-1).stop.getTokenIndex());
+							mark = _input.mark();
+							_input.seek($d.get(0).start.getTokenIndex());*/
+						}
 					}
+						
+					ANTLRInputStream input = new ANTLRInputStream("{"+in+"}");
+						
+					XQL lexer = new XQL(input);
+						
+					System.out.println("The text input:"+in);
+						
+					CommonTokenStream tokens = new CommonTokenStream(lexer);
+						
+					XQParser parser = new XQParser(tokens);
+						
+					for(Map.Entry<String, List<String>> s : forvars.entrySet())
+						parser.forvars.put(s.getKey(),s.getValue());
+						
+					parser.forvars.put($a.text,vara);
+						
+					boolean isAt = false;
+						
+					if($AT != null)
+					{
+						isAt = true;
+							
+						List<String> varb = new ArrayList<String>();
+							
+						varb.add(Integer.toString(i));
+							
+						parser.forvars.put($b.text,varb);
+					}
+						
+					parser.forvars.get($a.text).clear();
+					parser.forvars.get($a.text).add(params.get(i));
+							
+					if(isAt == true)
+					{
+						parser.forvars.get($b.text).clear();
+						parser.forvars.get($b.text).add(Integer.toString(i));
+					}
+					System.out.println("starting expr:"+_input.index());
+							
+					ParseTree tree;
+						
+					parser.isVCtx = true;
+											
+					tree = parser.exprp();
 				}
-					
-				ANTLRInputStream input = new ANTLRInputStream("{"+in+"}");
-					
-				XQL lexer = new XQL(input);
-					
-				System.out.println("The text input:"+in);
-					
-				CommonTokenStream tokens = new CommonTokenStream(lexer);
-					
-				XQParser parser = new XQParser(tokens);
-					
-				for(Map.Entry<String, List<String>> s : forvars.entrySet())
-					parser.forvars.put(s.getKey(),s.getValue());
-					
-				parser.forvars.put($a.text,vara);
-					
-				boolean isAt = false;
-					
-				if($AT != null)
-				{
-					isAt = true;
-						
-					List<String> varb = new ArrayList<String>();
-						
-					varb.add(Integer.toString(i));
-						
-					parser.forvars.put($b.text,varb);
-				}
-					
-				parser.forvars.get($a.text).clear();
-				parser.forvars.get($a.text).add(params.get(i));
-						
-				if(isAt == true)
-				{
-					parser.forvars.get($b.text).clear();
-					parser.forvars.get($b.text).add(Integer.toString(i));
-				}
-				System.out.println("starting expr:"+_input.index());
-						
-				ParseTree tree;
-					
-				parser.isVCtx = true;
-										
-				tree = parser.exprp();
 			}
 		}
 		isForCtx = false;

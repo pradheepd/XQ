@@ -11,17 +11,11 @@ import org.antlr.v4.runtime.tree.*;
  
 public class ServletDemo1 extends HttpServlet{
 	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
 	throws IOException{
 		PrintWriter out = response.getWriter();
-		//out.println("<html>");
-		//out.println("<body>");
-		//out.println("<h1>Hello Servlet Get</h1>");
 		
-		String inp = request.getQueryString();
-		
-		inp = inp.replace("%20"," ");
-		inp = inp.replace("%22","\"");
+		String inp = request.getParameter("query");
 		
 		if(inp != null)
 		{
@@ -35,9 +29,8 @@ public class ServletDemo1 extends HttpServlet{
 			
 			ParseTree tree = parser.prog();
 			out.println(XQData.getInstance().Markup);
+			
+			XQData.getInstance().ResetVars();
 		}
-		
-		//out.println("</body>");
-		//out.println("</html>");	
 	}
 }
