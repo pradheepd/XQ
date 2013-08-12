@@ -5,12 +5,32 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
 http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
  
 	<servlet>
-		<servlet-name>Servlet Name For Demo1</servlet-name>
-		<servlet-class>com.webb.ServletDemo1</servlet-class>
+		<servlet-name>Execute XQuery</servlet-name>
+		<servlet-class>com.webb.ServletExec</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>Install XQuery</servlet-name>
+		<servlet-class>com.webb.ServletInst</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>Upload XML</servlet-name>
+		<servlet-class>com.webb.ServletUpload</servlet-class>
 	</servlet>
  
 	<servlet-mapping>
-		<servlet-name>Servlet Name For Demo1</servlet-name>
-		<url-pattern>/Demo1</url-pattern>
+		<servlet-name>Execute XQuery</servlet-name>
+		<url-pattern>/ExecQuery</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Install XQuery</servlet-name>
+		<url-pattern>/InstQuery</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Upload XML</servlet-name>
+		<url-pattern>/Upload</url-pattern>
 	</servlet-mapping>
 </web-app>

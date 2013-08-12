@@ -49,11 +49,11 @@ public interface XQListener extends ParseTreeListener {
 	void enterWhereord(XQParser.WhereordContext ctx);
 	void exitWhereord(XQParser.WhereordContext ctx);
 
-	void enterFname(XQParser.FnameContext ctx);
-	void exitFname(XQParser.FnameContext ctx);
-
 	void enterExprp(XQParser.ExprpContext ctx);
 	void exitExprp(XQParser.ExprpContext ctx);
+
+	void enterFname(XQParser.FnameContext ctx);
+	void exitFname(XQParser.FnameContext ctx);
 
 	void enterArith(XQParser.ArithContext ctx);
 	void exitArith(XQParser.ArithContext ctx);

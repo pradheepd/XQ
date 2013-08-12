@@ -16,9 +16,9 @@ public class XQInstall
 	private Statement statement = null;
 	private ResultSet resultSet = null;
 	
-	XQInstall()
-	{
-		File[] files = new File("./SP").listFiles();
+	XQInstall(String path)
+	{	
+		File[] files = new File(path).listFiles();
 
 		connectdb();
 		
@@ -62,7 +62,7 @@ public class XQInstall
 	
 	public static void main(String[] args) throws Exception 
 	{
-		XQInstall ExecSP = new XQInstall();
+		//XQInstall ExecSP = new XQInstall();
 	}
 	
 	boolean connectdb()

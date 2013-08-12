@@ -1,0 +1,28 @@
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>
+<script>
+$(document).ready(function(){
+  $("button").click(function(){
+     $.post("http://localhost:8080/XQ/Demo1",{query:$("#inp").val()},function(data,status){
+	 $("#res").text(data);
+      alert("Status: " + status);
+    });
+  });
+});
+</script>
+</head>
+
+<body>
+<h2>XQuery Test Page</h2>
+<form name="form1" method="post" action="">
+Input field: <input type="text" id="inp" class="inputarea" value="" size="200">
+</form>
+<style>
+inputarea { width:"254 px"; height:"508 px";}
+</style>
+<p id="res"></p>
+<button>Execute Query</button>
+</body>
+</html>

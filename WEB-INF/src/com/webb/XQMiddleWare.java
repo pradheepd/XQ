@@ -5,6 +5,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import java.io.ByteArrayInputStream;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -62,7 +63,7 @@ public class XQMiddleWare
 		}
 	}
 	
-	XQMiddleWare(final String fname)
+	XQMiddleWare(final String fname, final String xml)
 	{
 		try
 		{	
@@ -212,7 +213,7 @@ public class XQMiddleWare
 				}
 			};
 			
-			saxParser.parse(fname, handler);
+			saxParser.parse(new ByteArrayInputStream(xml.getBytes()), handler);
 			
 			closedb();
 		}

@@ -9,7 +9,7 @@ public class XQt
 	{
 		if(args.length > 1)
 		{
-			XQMiddleWare upfile = new XQMiddleWare(args[1]);
+			//XQMiddleWare upfile = new XQMiddleWare(args[1]);
 		}
 		// create a CharStream that reads from standard input
 		ANTLRFileStream input = new ANTLRFileStream(args[0]);
