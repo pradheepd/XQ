@@ -52,11 +52,11 @@ public class XQBaseListener implements XQListener {
 	@Override public void enterWhereord(XQParser.WhereordContext ctx) { }
 	@Override public void exitWhereord(XQParser.WhereordContext ctx) { }
 
-	@Override public void enterExprp(XQParser.ExprpContext ctx) { }
-	@Override public void exitExprp(XQParser.ExprpContext ctx) { }
-
 	@Override public void enterFname(XQParser.FnameContext ctx) { }
 	@Override public void exitFname(XQParser.FnameContext ctx) { }
+
+	@Override public void enterExprp(XQParser.ExprpContext ctx) { }
+	@Override public void exitExprp(XQParser.ExprpContext ctx) { }
 
 	@Override public void enterArith(XQParser.ArithContext ctx) { }
 	@Override public void exitArith(XQParser.ArithContext ctx) { }
