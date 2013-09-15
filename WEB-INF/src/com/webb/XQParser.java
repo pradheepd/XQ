@@ -324,14 +324,14 @@ public class XQParser extends Parser {
 		public TerminalNode OFL() { return getToken(XQParser.OFL, 0); }
 		public TerminalNode CFL() { return getToken(XQParser.CFL, 0); }
 		public TerminalNode FN() { return getToken(XQParser.FN, 0); }
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
 		public TerminalNode AS(int i) {
 			return getToken(XQParser.AS, i);
 		}
 		public List<DtypeContext> dtype() {
 			return getRuleContexts(DtypeContext.class);
-		}
-		public ExprContext expr(int i) {
-			return getRuleContext(ExprContext.class,i);
 		}
 		public ArithContext arith(int i) {
 			return getRuleContext(ArithContext.class,i);
@@ -512,13 +512,13 @@ public class XQParser extends Parser {
 		public TerminalNode INT(int i) {
 			return getToken(XQParser.INT, i);
 		}
+		public List<TerminalNode> LIT() { return getTokens(XQParser.LIT); }
 		public VarContext var(int i) {
 			return getRuleContext(VarContext.class,i);
 		}
 		public DocpContext docp(int i) {
 			return getRuleContext(DocpContext.class,i);
 		}
-		public List<TerminalNode> LIT() { return getTokens(XQParser.LIT); }
 		public TerminalNode GT() { return getToken(XQParser.GT, 0); }
 		public List<TerminalNode> INT() { return getTokens(XQParser.INT); }
 		public List<VarpContext> varp() {
@@ -1350,10 +1350,10 @@ public class XQParser extends Parser {
 			return getRuleContext(DocpContext.class,i);
 		}
 		public TerminalNode GT() { return getToken(XQParser.GT, 0); }
-		public TerminalNode INT() { return getToken(XQParser.INT, 0); }
 		public List<VarpContext> varp() {
 			return getRuleContexts(VarpContext.class);
 		}
+		public TerminalNode INT() { return getToken(XQParser.INT, 0); }
 		public TerminalNode EQ() { return getToken(XQParser.EQ, 0); }
 		public TerminalNode LE() { return getToken(XQParser.LE, 0); }
 		public TerminalNode NE() { return getToken(XQParser.NE, 0); }
@@ -3277,6 +3277,8 @@ public class XQParser extends Parser {
 							}
 						}
 					}
+					
+					xp = xp.replace("//","/%/");
 					
 					String [] s = xp.split("@");
 					

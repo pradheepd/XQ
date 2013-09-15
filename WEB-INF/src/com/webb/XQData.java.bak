@@ -23,7 +23,7 @@ class XQData
 {
 	public String Markup;
 	
-	public Map<String,XQVar> vars;
+	public Map<String,List<String>> vars;
 	
 	public Map<String,XQFns> ftns;
 	
@@ -357,7 +357,7 @@ List<String> Rtn = new ArrayList<String>();
 			
 			while(resultSet.next())
 			{
-				Rtn.add(new String(resultSet.getString("val")));
+				Rtn.add(new String(resultSet.getString("records")));
 			}
 		}
 		catch (SQLException e) 

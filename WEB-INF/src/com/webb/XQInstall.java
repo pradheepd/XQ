@@ -28,7 +28,7 @@ public class XQInstall
 			{
 				try
 				{
-					BufferedReader br = new BufferedReader(new FileReader("SP/"+file.getName()));
+					BufferedReader br = new BufferedReader(new FileReader(path+"/"+file.getName()));
 					
 					String SPName = file.getName();
 					SPName = SPName.replace(".sql","");

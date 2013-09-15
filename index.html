@@ -4,11 +4,22 @@
 </script>
 <script>
 $(document).ready(function(){
-  $("button").click(function(){
-     $.post("http://localhost:8080/XQ/Demo1",{query:$("#inp").val()},function(data,status){
-	 $("#res").text(data);
-      alert("Status: " + status);
+  $("#exec").click(function(){
+     $.post("http://localhost:8080/XQ/ExecQuery",{query:$("#inp").val()},function(data,status){
+	 $("#res").text(data);      
     });
+  });
+  
+  $("#inst").click(function(){
+     $.post("http://localhost:8080/XQ/InstQuery",function(data,status){
+	 alert(status); 
+    });
+  });
+  
+  $("#upld").click(function(){
+	$.post("http://localhost:8080/XQ/Upload",{name:$("#fname").val(),xml:$("#inp").val()},function(data,status){
+	 alert(status);
+	});
   });
 });
 </script>
@@ -16,13 +27,15 @@ $(document).ready(function(){
 
 <body>
 <h2>XQuery Test Page</h2>
+<b>Query Input:</b>
 <form name="form1" method="post" action="">
-Input field: <input type="text" id="inp" class="inputarea" value="" size="200">
+<textarea id="inp" rows="10" cols="50">
+</textarea>
 </form>
-<style>
-inputarea { width:"254 px"; height:"508 px";}
-</style>
 <p id="res"></p>
-<button>Execute Query</button>
+<button id="exec">Execute Query</button>
+<button id="inst">Install SP</button>
+<b>File Name:</b><input id="fname" />
+<button id="upld">Upload XML</button>
 </body>
 </html>

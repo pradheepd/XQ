@@ -6,7 +6,7 @@ BEGIN
 
 declare done int default 0;
 
-declare childs cursor for select ID from valtable where xp=xpath;
+declare childs cursor for select ID from valtable where xp like xpath;
 
 DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 

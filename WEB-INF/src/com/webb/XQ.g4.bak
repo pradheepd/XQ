@@ -1157,8 +1157,6 @@ docp returns [ List<String> retVal ]
 			}
 		}
 		
-		xp = xp.replace("//","/%/");
-		
 		String [] s = xp.split("@");
 		
 		if(s.length == 1)
